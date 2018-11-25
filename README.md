@@ -84,6 +84,18 @@ On Linux you can also build static binary (e.g. also based on
 png2pos has no lib dependencies and is easy to build and run on Linux,
 Mac and Windows.
 
+### AUR (Arch Linux)
+
+There is also [AUR package](https://aur.archlinux.org/packages/png2pos/)
+available on Arch Linux.
+
+    git clone https://aur.archlinux.org/png2pos.git
+    cd png2pos
+    makepkg
+
+Created package could be installed via `sudo pacman -U` command,
+and also uninstalled via `sudo pacman -Rns png2pos`.
+
 ### seccomp
 
 png2pos usually writes its output directly to device (i.e. /dev/ file).
