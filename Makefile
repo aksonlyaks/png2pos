@@ -15,8 +15,6 @@ ifeq ($(shell uname -s),Linux)
 LDFLAGS += -Wl,-z,now -Wl,-z,relro
 endif
 
-PREFIX := /usr/local
-
 all : png2pos
 
 man : png2pos.1.gz
@@ -29,15 +27,15 @@ clean :
 	@-rm -f *.c_ *.h_
 
 install : all man
-	mkdir -p $(DESTDIR)$(PREFIX)/bin $(DESTDIR)$(PREFIX)/share/man/man1
-	install -m755 png2pos $(DESTDIR)$(PREFIX)/bin/
-	install -m644 png2pos.1.gz $(DESTDIR)$(PREFIX)/share/man/man1/
-	[ -d /etc/bash_completion.d/ ] && install -m644 png2pos.complete /etc/bash_completion.d/png2pos
+	mkdir -p $(DESTDIR)/bin $(DESTDIR)/share/man/man1 $(DESTDIR)/share/bash-completion/completions
+	install -m755 png2pos $(DESTDIR)/bin/
+	install -m644 png2pos.1.gz $(DESTDIR)/share/man/man1/
+	install -m644 png2pos.complete $(DESTDIR)/share/bash-completion/completions/
 
 uninstall :
-	rm -f $(DESTDIR)$(PREFIX)/bin/png2pos
-	rm -f $(DESTDIR)$(PREFIX)/share/man/man1/png2pos.1.gz
-	rm -f /etc/bash_completion.d/png2pos
+	rm -f $(DESTDIR)/bin/png2pos
+	rm -f $(DESTDIR)/share/man/man1/png2pos.1.gz
+	rm -f $(DESTDIR)/share/bash-completion/completions/png2pos.complete
 
 png2pos : png2pos.o deps/lodepng/lodepng.o
 	@printf "%-16s%s\n" LD $@
@@ -72,6 +70,7 @@ debug : all
 
 # git update
 update :
+	git submodule init
 	git pull --recurse-submodules
 
 # code indentation
