@@ -37,6 +37,7 @@ struct sock_filter filter[] = {
     ALLOW_SYSCALL(ioctl),
     ALLOW_SYSCALL(access),
     ALLOW_SYSCALL(open),
+    ALLOW_SYSCALL(openat),
     ALLOW_SYSCALL(read),
     ALLOW_SYSCALL(write),
     ALLOW_SYSCALL(close),
