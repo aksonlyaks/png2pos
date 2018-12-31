@@ -104,3 +104,7 @@ indent : png2pos.c_ seccomp.h_
 	    --dont-line-up-parentheses \
 	    --no-comment-delimiters-on-blank-lines \
 	    -v $< -o $@
+
+# static code analysis
+analyze :
+	@cppcheck . --enable=all --force
