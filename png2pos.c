@@ -4,12 +4,7 @@ png2pos is a utility to convert PNG images to ESC/POS format
 printers.
 */
 
-#ifdef __linux__
-#ifndef __x86_64__
-#warning modify source to support seccomp on your architecture
-#define NOSECCOMP
-#endif
-#else
+#ifndef __linux__
 #define NOSECCOMP
 #endif
 
@@ -23,7 +18,7 @@ printers.
 #include "seccomp.h"
 #endif
 
-const char *PNG2POS_VERSION = "1.7.2";
+const char *PNG2POS_VERSION = "1.7.3";
 const char *PNG2POS_BUILTON = __DATE__;
 const char *PNG2POS_FLAGS = "lodepng"
 #ifdef DEBUG
@@ -101,8 +96,7 @@ void pbm_write(const char *filename, unsigned int w, unsigned int h,
     const unsigned char *buffer, size_t buffer_size) {
 
     if (access(filename, F_OK) != -1) {
-        fprintf(stderr, "Debug file '%s' exists. Please remove it.\n",
-            filename);
+        fprintf(stderr, "Debug file '%s' exists. Please remove it.\n", filename);
     } else {
         FILE *f = fopen(filename, "wb");
         if (f) {
@@ -119,8 +113,7 @@ void png_write(const char *filename, unsigned int w, unsigned int h,
     const unsigned char *buffer, size_t img_bw_size) {
 
     if (access(filename, F_OK) != -1) {
-        fprintf(stderr, "Debug file '%s' exists. Please remove it.\n",
-            filename);
+        fprintf(stderr, "Debug file '%s' exists. Please remove it.\n", filename);
     } else {
         unsigned char *inv = calloc(img_bw_size, 1);
         if (inv) {
@@ -185,7 +178,8 @@ int main(int argc, char *argv[]) {
             case 'a':
                 config.align = toupper(optarg[0]);
                 if (!strchr("LCR", config.align)) {
-                    fprintf(stderr, "Unknown horizontal alignment '%c'\n",
+                    fprintf(stderr,
+                        "Unknown horizontal alignment '%c'\n",
                         config.align);
                     goto fail;
                 }
@@ -203,14 +197,14 @@ int main(int argc, char *argv[]) {
                 config.speed = strtoul(optarg, NULL, 0);
                 if (config.speed < 1 || config.speed > 9) {
                     config.speed = 0;
-                    fprintf(stderr, "Speed must be in the interval <1; 9>. "
+                    fprintf(stderr,
+                        "Speed must be in the interval <1; 9>. "
                         "Falling back to the default speed\n");
                 }
                 break;
 
             case 'V':
-                fprintf(stderr, "%s %s (%s)\n", "png2pos", PNG2POS_VERSION,
-                    PNG2POS_BUILTON);
+                fprintf(stderr, "%s %s (%s)\n", "png2pos", PNG2POS_VERSION, PNG2POS_BUILTON);
                 fprintf(stderr, "%s %s\n", "LodePNG", LODEPNG_VERSION_STRING);
                 fprintf(stderr, "flags: %s\n", PNG2POS_FLAGS);
                 ret = EXIT_SUCCESS;
@@ -239,14 +233,13 @@ int main(int argc, char *argv[]) {
                     "\n"
                     "Please read the manual page (man png2pos)\n"
                     "Report bugs at https://github.com/petrkutalek/png2pos/issues\n"
-                    "(c) Petr Kutalek <petr@kutalek.cz>, 2012 - 2018, "
+                    "(c) Petr Kutalek <petr@kutalek.cz>, 2012-2019, "
                         "Licensed under the MIT license\n");
                 ret = EXIT_SUCCESS;
                 goto fail;
 
             case ':':
-                fprintf(stderr, "Option '%c' requires an argument\n",
-                    optopt);
+                fprintf(stderr, "Option '%c' requires an argument\n", optopt);
                 fprintf(stderr, "For usage options run 'png2pos -h'\n");
                 goto fail;
 
@@ -266,8 +259,7 @@ int main(int argc, char *argv[]) {
         char *printer_max_width_env = getenv("PNG2POS_PRINTER_MAX_WIDTH");
 
         if (printer_max_width_env) {
-            config.printer_max_width = strtoul(printer_max_width_env,
-                NULL, 0);
+            config.printer_max_width = strtoul(printer_max_width_env, NULL, 0);
         }
         /* printer_max_width must be divisible by 8!! */
         config.printer_max_width &= ~0x7u;
@@ -287,21 +279,20 @@ int main(int argc, char *argv[]) {
     } else {
         fout = fopen(config.output, "wb");
         if (!fout) {
-            fprintf(stderr, "Could not open output file '%s'\n",
-                config.output);
+            fprintf(stderr, "Could not open output file '%s'\n", config.output);
             goto fail;
         }
     }
 
     if (isatty(fileno(fout))) {
-        fprintf(stderr, "This utility produces binary sequence printer "
+        fprintf(stderr,
+            "This utility produces binary sequence printer "
             "commands. Output have to be redirected\n");
         goto fail;
     }
 
     if (setvbuf(fout, NULL, _IOFBF, 8192)) {
-        fprintf(stderr, "Could not set new buffer policy on "
-            "output stream\n");
+        fprintf(stderr, "Could not set new buffer policy on output stream\n");
     }
     /* init printer */
     const unsigned char ESC_INIT[2] = {
@@ -334,14 +325,16 @@ int main(int argc, char *argv[]) {
             &img_w, &img_h, input);
 
         if (lodepng_error) {
-            fprintf(stderr, "Could not load and process input "
-                "PNG file, %s\n", lodepng_error_text(lodepng_error));
+            fprintf(stderr,
+                "Could not load and process input PNG file, %s\n",
+                lodepng_error_text(lodepng_error));
             goto fail;
         }
 
         if (img_w > config.printer_max_width) {
-            fprintf(stderr, "Image width %u px exceeds the printer's "
-                "capability (%u px)\n", img_w, config.printer_max_width);
+            fprintf(stderr,
+                "Image width %u px exceeds the printer's capability (%u px)\n",
+                img_w, config.printer_max_width);
             goto fail;
         }
 
@@ -385,11 +378,13 @@ int main(int argc, char *argv[]) {
                 }
             }
             if (colors < 16 && config.photo) {
-                fprintf(stderr, "Image seems to be B/W. -p is probably "
+                fprintf(stderr,
+                    "Image seems to be B/W. -p is probably "
                     "not good option this time\n");
             }
             if (colors >= 16 && !config.photo) {
-                fprintf(stderr, "Image seems to be greyscale or colored. "
+                fprintf(stderr,
+                    "Image seems to be greyscale or colored. "
                     "Maybe you should use option -p for better results\n");
             }
         }
@@ -539,8 +534,7 @@ int main(int argc, char *argv[]) {
                 k & 0xff, k >> 8 & 0xff
             };
             fwrite(ESC_STORE, 1, sizeof ESC_STORE, fout);
-            fwrite(&img_bw[l * (canvas_w >> 3)], 1, k * (canvas_w >> 3),
-                fout);
+            fwrite(&img_bw[l * (canvas_w >> 3)], 1, k * (canvas_w >> 3), fout);
 
             const unsigned char ESC_FLUSH[7] = {
                 /* GS ( L, Print the graphics data in the print buffer,

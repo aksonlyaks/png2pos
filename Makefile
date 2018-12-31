@@ -85,7 +85,7 @@ indent : png2pos.c_ seccomp.h_
 	    --line-comments-indentation 0 \
 	    --case-indentation 4 \
 	    --no-tabs \
-	    --line-length 76 \
+	    --line-length 128 \
 	    --ignore-newlines \
 	    --blank-lines-after-declarations \
 	    --blank-lines-after-procedures \
