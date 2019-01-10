@@ -1,7 +1,7 @@
 CC ?= gcc
 
-CFLAGS += -std=c99 -W -Wall -pedantic -ftree-vectorize -fPIE \
-	-fstack-protector -O3 -D_FORTIFY_SOURCE=2 \
+CFLAGS += -std=c99 -W -Wall -pedantic -frecord-gcc-switches \
+	-O2 -ftree-vectorize -ftree-slp-vectorize \
 	-Ideps/lodepng \
 	-D_POSIX_C_SOURCE=200809L \
 	-D_FILE_OFFSET_BITS=64 \
@@ -10,10 +10,18 @@ CFLAGS += -std=c99 -W -Wall -pedantic -ftree-vectorize -fPIE \
 	-DLODEPNG_NO_COMPILE_ALLOCATORS
 
 LDFLAGS += -pie
-ifeq ($(shell uname -s),Linux)
-# Full RELRO
+
+# inspired by hardened Gentoo, Debian etc.
+CFLAGS += -fPIE -fstack-protector-strong -fstack-clash-protection -D_FORTIFY_SOURCE=2
+CFLAGS += -Wformat -Wformat-security -Werror=format-security
 LDFLAGS += -Wl,-z,now -Wl,-z,relro
+
+# git version
+GIT_VERSION := $(shell git --no-pager describe --tags --always)
+ifneq ($(strip $(shell git status --porcelain 2> /dev/null)),)
+	GIT_VERSION := $(GIT_VERSION)-D
 endif
+CFLAGS += -DGIT_VERSION=\"$(GIT_VERSION)\"
 
 all : png2pos
 
@@ -55,24 +63,6 @@ deps/lodepng/%.o : deps/lodepng/%.cpp
 	@printf "%-16s%s\n" GZIP $@
 	@gzip -c -9 $< > $@
 
-# static version
-# usually used with musl etc.:
-#   CC=/usr/local/musl/bin/musl-gcc make static
-static : CFLAGS += -static -fno-PIE
-static : LDFLAGS += -static -no-pie
-static : all
-
-# debugging
-debug : CFLAGS += -DDEBUG
-debug : all
-	@ls -l png2pos
-	@./png2pos -V
-
-# git update
-update :
-	git submodule init
-	git pull --recurse-submodules
-
 # code indentation
 indent : png2pos.c_ seccomp.h_
 
@@ -105,6 +95,8 @@ indent : png2pos.c_ seccomp.h_
 	    --no-comment-delimiters-on-blank-lines \
 	    -v $< -o $@
 
-# static code analysis
 analyze :
 	@cppcheck . --enable=all --force
+
+analyze-binary :
+	@readelf -p .GCC.command.line png2pos

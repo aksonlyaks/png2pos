@@ -18,17 +18,6 @@ printers.
 #include "seccomp.h"
 #endif
 
-const char *PNG2POS_VERSION = "1.7.3";
-const char *PNG2POS_BUILTON = __DATE__;
-const char *PNG2POS_FLAGS = "lodepng"
-#ifdef DEBUG
-    " debug"
-#endif
-#ifndef NOSECCOMP
-    " seccomp"
-#endif
-;
-
 #ifdef LODEPNG_NO_COMPILE_ALLOCATORS
 /* modified lodepng allocators */
 
@@ -204,9 +193,8 @@ int main(int argc, char *argv[]) {
                 break;
 
             case 'V':
-                fprintf(stderr, "%s %s (%s)\n", "png2pos", PNG2POS_VERSION, PNG2POS_BUILTON);
+                fprintf(stderr, "%s %s\n", "png2pos", GIT_VERSION);
                 fprintf(stderr, "%s %s\n", "LodePNG", LODEPNG_VERSION_STRING);
-                fprintf(stderr, "flags: %s\n", PNG2POS_FLAGS);
                 ret = EXIT_SUCCESS;
                 goto fail;
 
