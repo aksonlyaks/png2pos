@@ -35,6 +35,7 @@ clean :
 	@-rm -f *.c_ *.h_
 
 install : all man
+	@-strip png2pos
 	mkdir -p $(DESTDIR)/bin $(DESTDIR)/share/man/man1 $(DESTDIR)/share/bash-completion/completions
 	install -m755 png2pos $(DESTDIR)/bin/
 	install -m644 png2pos.1.gz $(DESTDIR)/share/man/man1/
@@ -48,7 +49,6 @@ uninstall :
 png2pos : png2pos.o deps/lodepng/lodepng.o
 	@printf "%-16s%s\n" LD $@
 	@$(CC) $^ $(LDFLAGS) -o $@
-	@-strip $@
 
 %.o : %.c
 	@printf "%-16s%s\n" CC $@
@@ -95,8 +95,16 @@ indent : png2pos.c_ seccomp.h_
 	    --no-comment-delimiters-on-blank-lines \
 	    -v $< -o $@
 
-analyze :
-	@cppcheck . --enable=all --force
-
-analyze-binary :
+debug : CFLAGS += -ggdb3 -DDEBUG -DNOSECCOMP
+debug : png2pos
 	@readelf -p .GCC.command.line png2pos
+
+analyze : debug
+	@cppcheck . --enable=all --force
+	@valgrind \
+	    --leak-check=full \
+	    --show-leak-kinds=all \
+	    --track-origins=yes \
+	    --verbose \
+	    --log-file=valgrind-out.txt \
+	    ./png2pos -s 4 -p -c -r -a R -o /dev/null docs/lena_png2pos_*.png
