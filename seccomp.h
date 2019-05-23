@@ -80,7 +80,12 @@ struct sock_filter filter[] = {
     ALLOW_SYSCALL(exit),
     ALLOW_SYSCALL(exit_group),
     ALLOW_SYSCALL(brk),
+#ifdef __NR_mmap
     ALLOW_SYSCALL(mmap),
+#endif
+#ifdef __NR_mmap2
+    ALLOW_SYSCALL(mmap2),
+#endif
     ALLOW_SYSCALL(mremap),
     ALLOW_SYSCALL(munmap),
     ALLOW_SYSCALL(ioctl),

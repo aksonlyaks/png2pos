@@ -12,7 +12,7 @@ CFLAGS += -std=c99 -W -Wall -pedantic -frecord-gcc-switches \
 LDFLAGS += -pie
 
 # inspired by hardened Gentoo, Debian etc.
-CFLAGS += -fPIE -fstack-protector-strong -fstack-clash-protection -D_FORTIFY_SOURCE=2
+CFLAGS += -fPIE -fstack-protector-strong -D_FORTIFY_SOURCE=2
 CFLAGS += -Wformat -Wformat-security -Werror=format-security
 LDFLAGS += -Wl,-z,now -Wl,-z,relro
 
@@ -22,6 +22,8 @@ ifneq ($(strip $(shell git status --porcelain 2> /dev/null)),)
 	GIT_VERSION := $(GIT_VERSION)-D
 endif
 CFLAGS += -DGIT_VERSION=\"$(GIT_VERSION)\"
+
+DESTDIR ?= /usr
 
 all : png2pos
 
@@ -35,11 +37,10 @@ clean :
 	@-rm -f *.c_ *.h_
 
 install : all man
-	@-strip png2pos
 	mkdir -p $(DESTDIR)/bin $(DESTDIR)/share/man/man1 $(DESTDIR)/share/bash-completion/completions
-	install -m755 png2pos $(DESTDIR)/bin/
-	install -m644 png2pos.1.gz $(DESTDIR)/share/man/man1/
-	install -m644 png2pos.complete $(DESTDIR)/share/bash-completion/completions/
+	install -m755 -D -Z -s png2pos $(DESTDIR)/bin/
+	install -m644 -D -Z png2pos.1.gz $(DESTDIR)/share/man/man1/
+	install -m644 -D -Z png2pos.complete $(DESTDIR)/share/bash-completion/completions/
 
 uninstall :
 	rm -f $(DESTDIR)/bin/png2pos
