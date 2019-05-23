@@ -52,7 +52,7 @@ void lodepng_free(void *ptr) {
 struct dithering_matrix {
     int dx; /* x-offset */
     int dy; /* y-offset */
-    int v; /* error = v * 1/1,000th of value */
+    int v; /* error = v * 1/1,024th of value */
 };
 
 struct app_config {
@@ -400,18 +400,18 @@ int main(int argc, char *argv[]) {
             const struct dithering_matrix dithering_matrix[12] = {
                 /* for simplicity of computation, all standard dithering
                    formulas push the error forward, never backward */
-                {.dx =  1, .dy = 0, .v = 146 /* 7 / 48 */},
-                {.dx =  2, .dy = 0, .v = 104 /* 5 / 48 */},
-                {.dx = -2, .dy = 1, .v =  63 /* 3 / 48 */},
-                {.dx = -1, .dy = 1, .v = 104 /* 5 / 48 */},
-                {.dx =  0, .dy = 1, .v = 146 /* 7 / 48 */},
-                {.dx =  1, .dy = 1, .v = 104 /* 5 / 48 */},
-                {.dx =  2, .dy = 1, .v =  63 /* 3 / 48 */},
-                {.dx = -2, .dy = 2, .v =  21 /* 1 / 48 */},
-                {.dx = -1, .dy = 2, .v =  63 /* 3 / 48 */},
-                {.dx =  0, .dy = 2, .v = 104 /* 5 / 48 */},
-                {.dx =  1, .dy = 2, .v =  63 /* 3 / 48 */},
-                {.dx =  2, .dy = 2, .v =  21 /* 1 / 48 */}
+                {.dx =  1, .dy = 0, .v = 149 /* 1024 * 7 / 48 */},
+                {.dx =  2, .dy = 0, .v = 107 /* 1024 * 5 / 48 */},
+                {.dx = -2, .dy = 1, .v =  64 /* 1024 * 3 / 48 */},
+                {.dx = -1, .dy = 1, .v = 107 /* 1024 * 5 / 48 */},
+                {.dx =  0, .dy = 1, .v = 149 /* 1024 * 7 / 48 */},
+                {.dx =  1, .dy = 1, .v = 107 /* 1024 * 5 / 48 */},
+                {.dx =  2, .dy = 1, .v =  64 /* 1024 * 3 / 48 */},
+                {.dx = -2, .dy = 2, .v =  21 /* 1024 * 1 / 48 */},
+                {.dx = -1, .dy = 2, .v =  64 /* 1024 * 3 / 48 */},
+                {.dx =  0, .dy = 2, .v = 107 /* 1024 * 5 / 48 */},
+                {.dx =  1, .dy = 2, .v =  64 /* 1024 * 3 / 48 */},
+                {.dx =  2, .dy = 2, .v =  21 /* 1024 * 1 / 48 */}
             };
 
             for (unsigned int i = 0; i != img_grey_size; ++i) {
@@ -432,7 +432,7 @@ int main(int argc, char *argv[]) {
                     }
                     /* the residual quantization error, warning: !have to
                        overcast to signed int before calculation! */
-                    int d = (int) (o - n) * dithering_matrix[j].v / 1000;
+                    int d = (int) (o - n) * dithering_matrix[j].v / 1024;
 
                     /* keep a value in the <min; max> interval */
                     img_grey[x0 + img_w * y0] = s_add_to_byte(
