@@ -138,9 +138,9 @@ int main(int argc, char *argv[]) {
     /* none of our children will ever be granted more privs,
        escape via ptrace is impossible,
        init, set, compile and load custom BPF */
-    if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) < 0 ||
-        prctl(PR_SET_DUMPABLE, 0, 0, 0, 0) < 0 ||
-        prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, &seccomp_filter_prog) < 0) {
+    if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) < 0
+        || prctl(PR_SET_DUMPABLE, 0, 0, 0, 0) < 0
+        || prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, &seccomp_filter_prog) < 0) {
         fprintf(stderr, "Unable to initialize seccomp subsystem\n");
         goto fail;
     }
