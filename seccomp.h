@@ -61,8 +61,8 @@ png2pos -- SECCOMP filter
 #endif
 
 
-#define ALLOW_SYSCALL(name) \
-    BPF_JUMP(BPF_JMP + BPF_JEQ + BPF_K, __NR_##name, 0, 1), \
+#define ALLOW_SYSCALL(number) \
+    BPF_JUMP(BPF_JMP + BPF_JEQ + BPF_K, (number), 0, 1), \
     BPF_STMT(BPF_RET + BPF_K, SECCOMP_RET_ALLOW)
 
 struct sock_filter filter[] = {
@@ -70,41 +70,72 @@ struct sock_filter filter[] = {
     BPF_STMT(BPF_LD + BPF_W + BPF_ABS, offsetof(struct seccomp_data, arch)),
     BPF_JUMP(BPF_JMP + BPF_JEQ + BPF_K, SECCOMP_AUDIT_ARCH, 1, 0),
     BPF_STMT(BPF_RET + BPF_K, SECCOMP_RET_KILL),
+
     /* load syscall */
     BPF_STMT(BPF_LD + BPF_W + BPF_ABS, offsetof(struct seccomp_data, nr)),
+
     /* allowed syscalls */
-    ALLOW_SYSCALL(rt_sigreturn),
-#ifdef __NR_sigreturn
-    ALLOW_SYSCALL(sigreturn),
+#ifdef __NR_rt_sigreturn
+    ALLOW_SYSCALL(__NR_rt_sigreturn),
 #endif
-    ALLOW_SYSCALL(exit),
-    ALLOW_SYSCALL(exit_group),
-    ALLOW_SYSCALL(brk),
+#ifdef __NR_sigreturn
+    ALLOW_SYSCALL(__NR_sigreturn),
+#endif
+#ifdef __NR_exit
+    ALLOW_SYSCALL(__NR_exit),
+#endif
+#ifdef __NR_exit_group
+    ALLOW_SYSCALL(__NR_exit_group),
+#endif
+#ifdef __NR_brk
+    ALLOW_SYSCALL(__NR_brk),
+#endif
 #ifdef __NR_mmap
-    ALLOW_SYSCALL(mmap),
+    ALLOW_SYSCALL(__NR_mmap),
 #endif
 #ifdef __NR_mmap2
-    ALLOW_SYSCALL(mmap2),
+    ALLOW_SYSCALL(__NR_mmap2),
 #endif
-    ALLOW_SYSCALL(mremap),
-    ALLOW_SYSCALL(munmap),
-    ALLOW_SYSCALL(ioctl),
-    ALLOW_SYSCALL(access),
-    ALLOW_SYSCALL(open),
-    ALLOW_SYSCALL(openat),
-    ALLOW_SYSCALL(read),
-    ALLOW_SYSCALL(write),
-    ALLOW_SYSCALL(close),
-    ALLOW_SYSCALL(fstat),
+#ifdef __NR_mremap
+    ALLOW_SYSCALL(__NR_mremap),
+#endif
+#ifdef __NR_munmap
+    ALLOW_SYSCALL(__NR_munmap),
+#endif
+#ifdef __NR_ioctl
+    ALLOW_SYSCALL(__NR_ioctl),
+#endif
+#ifdef __NR_access
+    ALLOW_SYSCALL(__NR_access),
+#endif
+#ifdef __NR_open
+    ALLOW_SYSCALL(__NR_open),
+#endif
+#ifdef __NR_openat
+    ALLOW_SYSCALL(__NR_openat),
+#endif
+#ifdef __NR_read
+    ALLOW_SYSCALL(__NR_read),
+#endif
+#ifdef __NR_write
+    ALLOW_SYSCALL(__NR_write),
+#endif
+#ifdef __NR_close
+    ALLOW_SYSCALL(__NR_close),
+#endif
+#ifdef __NR_fstat
+    ALLOW_SYSCALL(__NR_fstat),
+#endif
 #ifdef __NR_lseek
-    ALLOW_SYSCALL(lseek),
+    ALLOW_SYSCALL(__NR_lseek),
 #endif
 #ifdef __NR_llseek
-    ALLOW_SYSCALL(llseek),
+    ALLOW_SYSCALL(__NR_llseek),
 #endif
 #ifdef __NR_lseek64
-    ALLOW_SYSCALL(lseek64),
+    ALLOW_SYSCALL(__NR_lseek64),
 #endif
+
     /* default policy: die (trap for debug) */
 #ifdef DEBUG
     BPF_STMT(BPF_RET + BPF_K, SECCOMP_RET_TRAP)
@@ -112,6 +143,7 @@ struct sock_filter filter[] = {
     BPF_STMT(BPF_RET + BPF_K, SECCOMP_RET_KILL)
 #endif
 };
+
 struct sock_fprog seccomp_filter_prog = {
     .len = (unsigned short) (sizeof filter / sizeof filter[0]),
     .filter = (struct sock_filter *) filter
