@@ -141,6 +141,7 @@ int main(int argc, char *argv[]) {
     if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) < 0
         || prctl(PR_SET_DUMPABLE, 0, 0, 0, 0) < 0
         || prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, &seccomp_filter_prog) < 0) {
+
         fprintf(stderr, "Unable to initialize seccomp subsystem\n");
         goto fail;
     }
@@ -167,8 +168,7 @@ int main(int argc, char *argv[]) {
             case 'a':
                 config.align = toupper(optarg[0]);
                 if (!strchr("LCR", config.align)) {
-                    fprintf(stderr,
-                        "Unknown horizontal alignment '%c'\n",
+                    fprintf(stderr, "Unknown horizontal alignment '%c'\n",
                         config.align);
                     goto fail;
                 }
@@ -186,9 +186,8 @@ int main(int argc, char *argv[]) {
                 config.speed = strtoul(optarg, NULL, 0);
                 if (config.speed < 1 || config.speed > 9) {
                     config.speed = 0;
-                    fprintf(stderr,
-                        "Speed must be in the interval <1; 9>. "
-                        "Falling back to the default speed\n");
+                    fprintf(stderr, "Speed must be in the interval <1; 9>."
+                        " Falling back to the default speed\n");
                 }
                 break;
 
@@ -201,8 +200,7 @@ int main(int argc, char *argv[]) {
             case 'h':
                 fprintf(stderr,
                     "png2pos is a utility to convert PNG to ESC/POS\n"
-                    "Usage: png2pos [-V] [-h] [-c] [-a L|C|R] [-r] [-p] "
-                        "[-s SPEED] [-o FILE] [INPUT_FILES...]\n"
+                    "Usage: png2pos [-V] [-h] [-c] [-a L|C|R] [-r] [-p]  [-s SPEED] [-o FILE] [INPUT_FILES...]\n"
                     "\n"
                     "  -V           display the version number and exit\n"
                     "  -h           display this short help and exit\n"
@@ -221,8 +219,8 @@ int main(int argc, char *argv[]) {
                     "\n"
                     "Please read the manual page (man png2pos)\n"
                     "Report bugs at https://github.com/petrkutalek/png2pos/issues\n"
-                    "(c) Petr Kutalek <petr@kutalek.cz>, 2012-2019, "
-                        "Licensed under the MIT license\n");
+                    "(c) Petr Kutalek <petr@kutalek.cz>, 2012-2019, Licensed under the MIT license\n"
+                    );
                 ret = EXIT_SUCCESS;
                 goto fail;
 
@@ -273,9 +271,8 @@ int main(int argc, char *argv[]) {
     }
 
     if (isatty(fileno(fout))) {
-        fprintf(stderr,
-            "This utility produces binary sequence printer "
-            "commands. Output have to be redirected\n");
+        fprintf(stderr, "This utility produces binary sequence printer"
+            " commands. Output have to be redirected\n");
         goto fail;
     }
 
@@ -313,16 +310,14 @@ int main(int argc, char *argv[]) {
             &img_w, &img_h, input);
 
         if (lodepng_error) {
-            fprintf(stderr,
-                "Could not load and process input PNG file, %s\n",
+            fprintf(stderr, "Could not load and process input PNG file, %s\n",
                 lodepng_error_text(lodepng_error));
             goto fail;
         }
 
         if (img_w > config.printer_max_width) {
-            fprintf(stderr,
-                "Image width %u px exceeds the printer's capability (%u px)\n",
-                img_w, config.printer_max_width);
+            fprintf(stderr, "Image width %u px exceeds the printer's"
+                " capability (%u px)\n", img_w, config.printer_max_width);
             goto fail;
         }
 
@@ -366,14 +361,12 @@ int main(int argc, char *argv[]) {
                 }
             }
             if (colors < 16 && config.photo) {
-                fprintf(stderr,
-                    "Image seems to be B/W. -p is probably "
-                    "not good option this time\n");
+                fprintf(stderr, "Image seems to be B/W. -p is probably"
+                    " not good option this time\n");
             }
             if (colors >= 16 && !config.photo) {
-                fprintf(stderr,
-                    "Image seems to be greyscale or colored. "
-                    "Maybe you should use option -p for better results\n");
+                fprintf(stderr, "Image seems to be greyscale or colored."
+                    " Maybe you should use option -p for better results\n");
             }
         }
 
@@ -416,7 +409,7 @@ int main(int argc, char *argv[]) {
 
             for (unsigned int i = 0; i != img_grey_size; ++i) {
                 unsigned int o = img_grey[i];
-                unsigned int n = o <= 0x80 ? 0 : 0xff;
+                unsigned int n = o <= 0x80 ? 0x00 : 0xff;
 
                 int x = i % img_w;
                 int y = i / img_w;
@@ -426,8 +419,9 @@ int main(int argc, char *argv[]) {
                     int x0 = x + dithering_matrix[j].dx;
                     int y0 = y + dithering_matrix[j].dy;
 
-                    if (x0 > (int) img_w - 1 || x0 < 0  ||
-                        y0 > (int) img_h - 1 || y0 < 0) {
+                    if (x0 > (int) img_w - 1 || x0 < 0
+                        || y0 > (int) img_h - 1 || y0 < 0) {
+
                         continue;
                     }
                     /* the residual quantization error, warning: !have to
@@ -435,8 +429,8 @@ int main(int argc, char *argv[]) {
                     int d = (int) (o - n) * dithering_matrix[j].v / 1024;
 
                     /* keep a value in the <min; max> interval */
-                    img_grey[x0 + img_w * y0] = s_add_to_byte(
-                        img_grey[x0 + img_w * y0], d);
+                    img_grey[x0 + img_w * y0] =
+                        s_add_to_byte(img_grey[x0 + img_w * y0], d);
                 }
             }
         }
