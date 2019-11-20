@@ -37,15 +37,16 @@ clean :
 	@-rm -f *.c_ *.h_
 
 install : all man
-	mkdir -p $(DESTDIR)/bin $(DESTDIR)/share/man/man1 $(DESTDIR)/share/bash-completion/completions
-	install -m0755 -D -Z -s png2pos $(DESTDIR)/bin/
-	install -m0644 -D -Z png2pos.1.gz $(DESTDIR)/share/man/man1/
-	install -m0644 -D -Z png2pos.complete $(DESTDIR)/share/bash-completion/completions/
+	install -m755 -Z -D -s -t $(DESTDIR)/bin/ png2pos
+	install -m644 -Z -D -t $(DESTDIR)/share/man/man1/ png2pos.1.gz
+	install -m644 -Z -D -t $(DESTDIR)/share/bash-completion/completions/ png2pos.complete
+	install -m644 -Z -D -t $(DESTDIR)/share/doc/png2pos/ README.md LICENSE
 
 uninstall :
 	rm -f $(DESTDIR)/bin/png2pos
 	rm -f $(DESTDIR)/share/man/man1/png2pos.1.gz
 	rm -f $(DESTDIR)/share/bash-completion/completions/png2pos.complete
+	rm -fr $(DESTDIR)/share/doc/png2pos
 
 png2pos : png2pos.o deps/lodepng/lodepng.o
 	@printf "%-16s%s\n" LD $@
