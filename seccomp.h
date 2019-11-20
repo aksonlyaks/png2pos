@@ -126,11 +126,17 @@ struct sock_filter filter[] = {
 #ifdef __NR_fstat
     ALLOW_SYSCALL(__NR_fstat),
 #endif
+#ifdef __NR_fstat64
+    ALLOW_SYSCALL(__NR_fstat64),
+#endif
 #ifdef __NR_lseek
     ALLOW_SYSCALL(__NR_lseek),
 #endif
 #ifdef __NR_llseek
     ALLOW_SYSCALL(__NR_llseek),
+#endif
+#ifdef __NR__llseek
+    ALLOW_SYSCALL(__NR__llseek),
 #endif
 #ifdef __NR_lseek64
     ALLOW_SYSCALL(__NR_lseek64),
