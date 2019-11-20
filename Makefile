@@ -38,9 +38,9 @@ clean :
 
 install : all man
 	mkdir -p $(DESTDIR)/bin $(DESTDIR)/share/man/man1 $(DESTDIR)/share/bash-completion/completions
-	install -m755 -D -Z -s png2pos $(DESTDIR)/bin/
-	install -m644 -D -Z png2pos.1.gz $(DESTDIR)/share/man/man1/
-	install -m644 -D -Z png2pos.complete $(DESTDIR)/share/bash-completion/completions/
+	install -m0755 -D -Z -s png2pos $(DESTDIR)/bin/
+	install -m0644 -D -Z png2pos.1.gz $(DESTDIR)/share/man/man1/
+	install -m0644 -D -Z png2pos.complete $(DESTDIR)/share/bash-completion/completions/
 
 uninstall :
 	rm -f $(DESTDIR)/bin/png2pos
